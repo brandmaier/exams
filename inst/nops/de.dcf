@@ -5,7 +5,7 @@ GivenName: Vorname
 Signature: Unterschrift
 RegistrationNumber: Matrikelnummer
 Checked: gepr{\"u}ft
-NoChanges: In diesem Feld d{\"u}rfen \textbf{keine} Ver{\"a}nderungen der Daten vorgenommen werden!
+NoChanges: In diesem Feld d{\"u}rfen \textbf{keine} Ver{\"a}nderungen vorgenommen werden!
 DocumentType: Belegart
 DocumentID: Klausur-ID
 Scrambling: Scrambling

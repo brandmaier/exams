@@ -182,8 +182,8 @@ page3 <- if(any(nchoice < 1L)) {
 }
 
 ## number of additional units in registration ID
-addreg <- pmin(3L, pmax(0L, reglength - 7L))
-
+addreg <- pmin(5L, pmax(0L, reglength - 7L))
+cat("ADDREG: ", addreg,"\n")
 ## encoding always assumed to be UTF-8 starting from R/exams 2.4-0
 if(!is.null(encoding) && !(tolower(encoding) %in% c("", "utf-8", "utf8"))) {
   warning("the only supported 'encoding' is UTF-8")
@@ -214,6 +214,8 @@ blank <- list(
   rep("\\newpage\n\\phantom{.}", blank[1L]),
   rep("\\newpage\n\\phantom{.}", blank[2L])
 )
+
+sprintf("\\reg%s%s", c("seven", "eight", "nine", "ten", "eleven", "twelve"), tolower(0L:5L == addreg))
 
 rval <- c(
 sprintf("\\documentclass[10pt,a4paper%s]{article}", if(twocolumn) ",twocolumn" else ""),
@@ -261,8 +263,10 @@ if(enc != "") sprintf('\\usepackage[%s]{inputenc}', enc) else NULL,
 \\newif\\ifregeight
 \\newif\\ifregnine
 \\newif\\ifregten
+\\newif\\ifregeleven
+\\newif\\ifregtwelve
 ",
-sprintf("\\reg%s%s", c("seven", "eight", "nine", "ten"), tolower(0L:3L == addreg)),
+sprintf("\\reg%s%s", c("seven", "eight", "nine", "ten", "eleven", "twelve"), tolower(0L:5L == addreg)),
 "
 \\ifregseven
   \\def\\namecenter{72.5}
@@ -326,6 +330,22 @@ sprintf("\\reg%s%s", c("seven", "eight", "nine", "ten"), tolower(0L:3L == addreg
   \\def\\regwidthn{84}
   \\def\\regnum{10}
   \\def\\regnumt{9}
+\\fi
+
+\\ifregtwelve
+  \\def\\namecenter{60.0}
+  \\def\\namewidth{70}
+  \\def\\namechecked{98}
+  \\def\\nameline{60}  % line for stating name and first name
+  \\def\\regcenter{127}
+  \\def\\regleft{99}  % Matrikelnummerbox in Ziffern Position
+  \\def\\regleftt{106} % Matrikelnummerbox Trennzeichen für Ziffern
+  \\def\\regleftb{99} % Position der Matrikelnummer-Checkboxes
+  \\def\\regleftn{95} % Offset der Zahlen 0-9
+  \\def\\regwidth{93} % width of the Matrikelnummerbox in Ziffern
+  \\def\\regwidthn{104} % offset of right set of numbers 0-9
+  \\def\\regnum{12} % number of checkboxes for ID/Matrikelnummer
+  \\def\\regnumt{11}
 \\fi
 
 %% for exams2pdf
@@ -505,8 +525,9 @@ if(reglength < 7L) {
 } else {
   initialzeros <- 0L
 }
-if(reglength > 10L) warning(sprintf("'reglength = %s' too large, using 10 instead", reglength))
-addreg <- pmin(3L, pmax(0L, reglength - 7L))
+if(reglength > 12L) warning(sprintf("'reglength = %s' too large, using 10 instead", reglength))
+addreg <- pmin(5L, pmax(0L, reglength - 7L))
+cat("Using addreg=",addreg,"\n")
 
 mytype <- if(addreg < 1L) {
   ## the number of questions rounded up in steps of 5 
@@ -666,7 +687,7 @@ sapply(1:n, function(i) qbox(i, nchoice = nchoice[i])),
 \\put(32,177){\\makebox(0,0)[t]{\\textsf{\\myDocumentType}}} 
 \\put(25,166){\\framebox(14,7){}} 
 \\put(67,177){\\makebox(0,0)[t]{\\textsf{\\myDocumentID \\mycourse}}}
-\\put(46,166){\\framebox(42,7){}} \\put(25,183.5){\\parbox{70mm}{%
+\\put(46,166){\\framebox(42,7){}} \\put(25,183.5){\\parbox{60mm}{%
 \\textsf{\\myNoChanges}}}
 \\ifregseven
 \\thinlines \\put(113,180){\\line(0,1){1.5}} \\thicklines 
