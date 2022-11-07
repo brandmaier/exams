@@ -237,6 +237,24 @@ subimage <- function(x, center, prop = 0.01) {
   x
 }
 
+subimageput <- function(x, center, prop = 0.01, value) {
+  prop <- rep(prop, length.out = 2L)
+  if(center[1L] < 1) center[1L] <- round(center[1L] * nrow(x))
+  if(center[2L] < 1) center[2L] <- round(center[2L] * ncol(x))
+  topleft  <- center - round(nrow(x) * prop/2)
+  botright <- center + round(nrow(x) * prop/2)
+  x[max(1L, topleft[1L]):min(nrow(x), botright[1L]), max(1L, topleft[2L]):min(ncol(x), botright[2L])] <- value
+  x
+}
+
+subimageputmark <- function(x, at) {
+  val = 1
+  x = subimageput(x, at, value = val)
+  for (i in seq(-0.01,0.01,0.001)) x= subimageput(x,c(at[1]+i,at[2]),value=val)
+  for (i in seq(-0.01,0.01,0.001)) x= subimageput(x,c(at[1],at[2]+i),value=val)
+  x
+}
+
 ## shave (almost) white margins of a pixel matrix
 shave <- function(x, zap = 0.07) {
   ix <- rowMeans(x) > zap
@@ -557,8 +575,27 @@ read_nops_answers <- function(x, threshold = c(0.04, 0.42), size = 0.03, trim = 
 
 read_nops_registration <- function(x, threshold = c(0.04, 0.42), size = 0.036, trim = 0.3, regextra = 0L)
 {
-  coord <- cbind(0.166 + rep(0L:9L, each = 7L + regextra) * 0.027,
-    0.681 + rep(-regextra:6L, 10L) * 0.047)
+
+  # AB
+  
+#  coord <- cbind(0.166 + rep(0L:9L, each = 7L + regextra) * 0.027,
+#    0.681 + rep(-regextra:6L, 10L) * 0.047)
+#  err <- paste(rep.int("0", 7L + regextra), collapse = "")
+  regextra = 5
+  
+  # generate (x,y) starting points of checkboxes
+#  coord <- cbind(0.166 + rep(0L:9L, each = 7L + regextra) * 0.027,
+#                 0.578 + rep(-regextra:6L, 10L) * 0.047)
+  
+  coord <- cbind(0.166 + rep(0L:9L, each = 7L + regextra) * 0.027, # y first
+                 #0.678 + (rep(-regextra:6L, 10L)) * 0.047)  # x second
+                0.47 + rep(0:11, 10L) * 0.047 )
+
+ # for (i in 1:nrow(coord))
+#  for (i in 1:24)
+#    x <- subimageputmark(x, coord[i,])
+#  writeBin(png::writePNG(1 - x), "C:/Users/andreas.brandmaier/OneDrive - MSB Medical School Berlin/Dokumente/GitHub/exams/temp.png")
+#  browser()
   err <- paste(rep.int("0", 7L + regextra), collapse = "")
   
   y <- try(matrix(sapply(1:nrow(coord), function(i)
@@ -566,6 +603,8 @@ read_nops_registration <- function(x, threshold = c(0.04, 0.42), size = 0.036, t
     silent = TRUE)
   if(inherits(y, "try-error")) return(err)
 
+  browser()
+  
   ## checked boxes per column
   cs <- colSums(y > 0)
 
@@ -582,6 +621,9 @@ read_nops_registration <- function(x, threshold = c(0.04, 0.42), size = 0.036, t
       y[y[,i] > min(y[y[,i] > 0, i]) + 0.0001, i] <- 0
     }
   }
+  
+ 
+  
   paste(apply(y, 2L, which.max) - 1, collapse = "")
 }
 

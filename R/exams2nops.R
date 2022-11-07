@@ -348,6 +348,9 @@ sprintf("\\reg%s%s", c("seven", "eight", "nine", "ten", "eleven", "twelve"), tol
   \\def\\regnumt{11}
 \\fi
 
+%\\def\\boxdist{8}
+\\def\\boxdist{7}
+
 %% for exams2pdf
 \\newenvironment{question}{\\item}{}
 \\newenvironment{solution}{\\comment}{\\endcomment}",
@@ -436,7 +439,8 @@ if(samepage) {
 \\newcommand{\\myPersonalData}{\\@PersonalData}
 \\newcommand{\\myFamilyName}{\\@FamilyName}
 \\newcommand{\\myGivenName}{\\@GivenName}
-\\newcommand{\\mySignature}{\\@Signature}
+%\\newcommand{\\mySignature}{\\@Signature}
+\\newcommand{\\myCourse}{Kurs}
 \\newcommand{\\myRegistrationNumber}{\\@RegistrationNumber}
 \\newcommand{\\myChecked}{\\@Checked}
 \\newcommand{\\myNoChanges}{\\@NoChanges}
@@ -598,14 +602,14 @@ c("
 \\multiput(20,217)(0,12){2}{\\line(1,0){\\nameline}} \\thicklines 
 \\put(21,236){\\makebox(0,5)[l]{\\textsf{\\myFamilyName:}}} 
 \\put(21,224){\\makebox(0,5)[l]{\\textsf{\\myGivenName:}}} 
-\\put(21,212){\\makebox(0,5)[l]{\\textsf{\\mySignature:}}} 
-\\put(\\namechecked,200){\\makebox(0,0)[rb]{\\scriptsize{\\textsf{\\myChecked}}}} 
+\\put(21,212){\\makebox(0,5)[l]{\\textsf{\\myCourse:}}} 
+%\\put(\\namechecked,200){\\makebox(0,0)[rb]{\\scriptsize{\\textsf{\\myChecked}}}} 
 
 % registration number box
 \\put(\\regcenter,244){\\makebox(0,0){\\textsf{\\myRegistrationNumber}}} 
 \\put(\\regleft,233){\\framebox(\\regwidth,8){}} \\thinlines 
-\\multiput(\\regleftt,233)(8,0){\\regnumt}{\\line(0,1){1.5}} \\thicklines 
-\\multiput(\\regleftb,163)(8,0){\\regnum}{\\begin{picture}(0,0) 
+\\multiput(\\regleftt,233)(\\boxdist,0){\\regnumt}{\\line(0,1){1.5}} \\thicklines 
+\\multiput(\\regleftb,163)(\\boxdist,0){\\regnum}{\\begin{picture}(0,0) 
 \\multiput(0,0)(0,7){10}{\\framebox(4,4){}}\\end{picture}}",
 if(replacement) "\\setcounter{nr3}{0}" else "\\newcounter{nr3}",
 "
@@ -629,7 +633,8 @@ sprintf("
 "
 
 % general instructions and logo
-\\IfFileExists{\\mylogo}{\\put(175,251){\\includegraphics[height=2.51cm,keepaspectratio]{\\mylogo}}}{}
+%\\IfFileExists{\\mylogo}{\\put(175,251){\\includegraphics[height=2.51cm,keepaspectratio]{\\mylogo}}}{}
+\\IfFileExists{\\mylogo}{\\put(105,246){\\includegraphics[height=2.51cm,keepaspectratio]{\\mylogo}}}{}
 \\put(40,270){\\makebox(0,0)[bl]{\\textsf{\\textbf{\\LARGE{\\myinstitution}}}}}
 \\put(20,147){\\parbox{170mm}{\\textsf{\\myWarning}}} 
 
