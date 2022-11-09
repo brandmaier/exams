@@ -605,6 +605,15 @@ c("
 \\put(21,212){\\makebox(0,5)[l]{\\textsf{\\myCourse:}}} 
 %\\put(\\namechecked,200){\\makebox(0,0)[rb]{\\scriptsize{\\textsf{\\myChecked}}}} 
 
+% TODO: add colored stripes?!
+%\\put(\\regleft,163){
+%\\fcolorbox{white}{lightgray}{\\hspace{9cm}}
+%}
+%
+%\\put(\\regleft,179){
+%\\fcolorbox{white}{lightgray}{\\hspace{9cm}}
+%}
+
 % registration number box
 \\put(\\regcenter,244){\\makebox(0,0){\\textsf{\\myRegistrationNumber}}} 
 \\put(\\regleft,233){\\framebox(\\regwidth,8){}} \\thinlines 

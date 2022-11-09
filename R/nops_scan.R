@@ -494,11 +494,15 @@ read_nops_digits <- function(x, type = c("type", "id", "scrambling"), tesseract 
   if(identical(adjust, TRUE)) adjust <- c(0.2065, 0)
   if(identical(adjust, FALSE)) adjust <- c(0, 0)
   
+ # browser()
+  
   ## extract image of numbers
   type <- match.arg(type)
   z <- switch(type,
     "type" = shave_box(subimage(x, c(0.3925 - adjust[1L], 0.074 - adjust[2L]), c(0.035, 0.078))),
-    "id" = shave_box(subimage(x, c(0.3925 - adjust[1L], 0.275 - adjust[2L]), c(0.035, 0.19))),
+#    "id" = shave_box(subimage(x, c(0.3925 - adjust[1L], 0.275 - adjust[2L]), c(0.035, 0.19))),
+#    "id" = shave_box(subimage(x, c(0.3925 - adjust[1L], 0.275 - adjust[2L]), c(0.035, 0.19))),
+    "id" = shave_box(subimage(x, c(0.3915 - adjust[1L], 0.275 - adjust[2L]), c(0.035, 0.18))),
     "scrambling" = {
       y <- shave_box(subimage(x, c(0.337 - adjust[1L], 0.545 - adjust[2L]), c(0.035, 0.078)), clip = FALSE)
       y[round(0.7 * nrow(y)):nrow(y), round(0.43 * ncol(y)):round(0.57 * ncol(y))] <- 0
@@ -589,8 +593,13 @@ read_nops_registration <- function(x, threshold = c(0.04, 0.42), size = 0.036, t
   
   coord <- cbind(0.166 + rep(0L:9L, each = 7L + regextra) * 0.027, # y first
                  #0.678 + (rep(-regextra:6L, 10L)) * 0.047)  # x second
-                0.47 + rep(0:11, 10L) * 0.047 )
+                #0.47 + rep(0:11, 10L) * 0.047 ) # 0.047 corresponds to 8 units distance
+                0.47 + rep(0:11, 10L) * 0.047*7.0/8.0 ) # 0.047 corresponds to 8 units distance
 
+  
+  #
+  # write out manipulated PNG image
+  #
  # for (i in 1:nrow(coord))
 #  for (i in 1:24)
 #    x <- subimageputmark(x, coord[i,])
@@ -603,7 +612,11 @@ read_nops_registration <- function(x, threshold = c(0.04, 0.42), size = 0.036, t
     silent = TRUE)
   if(inherits(y, "try-error")) return(err)
 
-  browser()
+  #    "id" = shave_box(subimage(x, c(0.3925 - adjust[1L], 0.275 - adjust[2L]), c(0.035, 0.19))),
+  x <- subimageputmark(x, c(0.3925, 0.275-0.09)) 
+  x <- subimageputmark(x, c(0.3925+0.035, 0.275+0.19-0.09))
+  
+ # browser()
   
   ## checked boxes per column
   cs <- colSums(y > 0)
