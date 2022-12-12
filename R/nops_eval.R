@@ -31,7 +31,8 @@ nops_eval <- function(
   if(tools::file_ext(language) == "dcf") language <- tools::file_path_as_absolute(language)
 
   ## read registration information
-  register <- read.csv2(register, colClasses = "character")
+  if (!is.null(register)) {
+    register <- read.csv2(register, colClasses = "character")
   
   ## check field names (de version supported for backward compatibility)
   if(!all(c("registration", "name", "id") %in% tolower(names(register)))) {
@@ -54,6 +55,10 @@ nops_eval <- function(
   }
   rownames(register) <- register$registration
 
+  } else {
+    nam <- c("registration", "name", "id")
+  }
+  
   ## read correct solutions
   solutions <- readRDS(solutions)
 
@@ -104,11 +109,22 @@ nops_eval <- function(
     string_scans = string_scans, string_points = string_points)
   if(interactive) tab <- nops_eval_results_table(results, solutions)
 
+  browser()
   ## match with registration data
-  register <- register[results$registration, ]
-  results$registration <- NULL
-  results <- cbind(register, results)
-
+  if (!is.null(register)) {
+    # register has three columns with names (registration, name, id) where
+    # id is built from the name in lower case and underscores instead of
+    # spaces
+   register <- register[results$registration, ]
+   results$registration <- NULL
+   results <- cbind(register, results)
+  } else {
+    #results <- cbind(results$id, results)
+    new_name <- rep("anonymous-anonymous",nrow(results))
+    new_id <- paste0(results$registration,"_anon",sep="")
+    results <- cbind(results[,1], new_name, new_id, results[,2:ncol(results)])
+  }
+  
   ## save results (preserving original column names, potentiall de or upper case)
   names(results)[1L:3L] <- nam
   write.table(results, file = results_csv,
@@ -172,7 +188,7 @@ nops_eval_check <- function(scans = "Daten.txt", register = dir(pattern = "\\.cs
   if(is.character(solutions)) solutions <- readRDS(solutions)
   
   ## missing student or exam IDs  
-  id1 <- which(!(d[, 6L] %in% rownames(register)))
+  if (is.null(register)) id1<-integer(0) else  id1 <- which(!(d[, 6L] %in% rownames(register)))
   id2 <- which(!(d[, 2L] %in% names(solutions)))
   id <- d[sort(unique(c(id1, id2))), 6L]
   attr(d, "check") <- id
