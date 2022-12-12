@@ -109,7 +109,7 @@ nops_eval <- function(
     string_scans = string_scans, string_points = string_points)
   if(interactive) tab <- nops_eval_results_table(results, solutions)
 
-  browser()
+  #browser()
   ## match with registration data
   if (!is.null(register)) {
     # register has three columns with names (registration, name, id) where

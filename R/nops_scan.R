@@ -612,11 +612,12 @@ read_nops_registration <- function(x, threshold = c(0.04, 0.42), size = 0.036, t
     silent = TRUE)
   if(inherits(y, "try-error")) return(err)
 
+  # this is test code to put a mark somewhere (for debuggin reasons)
   #    "id" = shave_box(subimage(x, c(0.3925 - adjust[1L], 0.275 - adjust[2L]), c(0.035, 0.19))),
-  x <- subimageputmark(x, c(0.3925, 0.275-0.09)) 
-  x <- subimageputmark(x, c(0.3925+0.035, 0.275+0.19-0.09))
+  #x <- subimageputmark(x, c(0.3925, 0.275-0.09)) 
+  #x <- subimageputmark(x, c(0.3925+0.035, 0.275+0.19-0.09))
   
- # browser()
+  browser()
   
   ## checked boxes per column
   cs <- colSums(y > 0)
@@ -628,9 +629,9 @@ read_nops_registration <- function(x, threshold = c(0.04, 0.42), size = 0.036, t
   ## in columns with more than one checked box:
   ## use maximum within thresholds (if any) or minimum above threshold[2]
   for(i in which(cs > 1L)) {
-    if(any(y[,i] >= threshold[1L] & y[,i] <= threshold[2L])) {
-      y[y[,i] > threshold[2L], i] <- 0
-    } else {
+    if(any(y[,i] >= threshold[1L] & y[,i] <= threshold[2L])) { # if there is values within threshold
+      y[y[,i] > threshold[2L], i] <- 0 # set all values over max threshold to zero
+    } else { # if there is only values outside threshold
       y[y[,i] > min(y[y[,i] > 0, i]) + 0.0001, i] <- 0
     }
   }
