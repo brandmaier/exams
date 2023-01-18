@@ -378,6 +378,7 @@ has_mark <- function(x, threshold = c(0.04, 0.42), fuzzy = FALSE, trim = 0.3, sh
 ## read scanned PNG image into b/w pixel matrix and trim margins
 trim_nops_scan <- function(x, verbose = FALSE, minrot = 0.002)
 {
+ # browser()
   ## read gray levels
   if(is.character(x)) {
     file <- x

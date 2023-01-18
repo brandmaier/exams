@@ -50,6 +50,7 @@ export(
   "xweave",
   "exams_metainfo",
   "exams_eval",
+  "eval_simple",
   "exams_skeleton",
   "exams.skeleton",
 
