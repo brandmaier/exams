@@ -1,5 +1,5 @@
 nops_eval <- function(
-  register = dir(pattern = "\\.csv$"),
+  register = NULL, 
   solutions = dir(pattern = "\\.rds$"),
   scans = dir(pattern = "^nops_scan_[[:digit:]]*\\.zip$"),
   points = NULL, eval = exams_eval(partial = TRUE, negative = FALSE, rule = "false2"),
@@ -140,7 +140,44 @@ nops_eval <- function(
     list(results = results_csv, file = file, dir = dir, language = language),
     list(...)
   ))
+  
+  ## --
 
+  
+  ascp <- results[,-c(1:8)]
+  new_dataset <- matrix(nrow=nrow(ascp),ncol=0)
+  num_items <- ncol(ascp)/4
+#  cur_item_nr <- 1
+  for (cur_item_nr in 1:num_items) {
+  cur_answer_col <- ascp[,(cur_item_nr-1)*4+1]
+  cur_sol_col <- ascp[,(cur_item_nr-1)*4+2]
+  # determine nr of responses
+  nr_responses <- nchar(cur_sol_col[1])
+  new_cols <- matrix(nrow=nrow(ascp),ncol=nr_responses,data = NA )
+  colnames(new_cols) <- paste0(cur_item_nr,"_",1:nr_responses)
+  #cur_row <- 1
+  for (cur_row in 1:nrow(ascp)) {
+   
+    cur_sol_item <- cur_sol_col[cur_row]
+    cur_answer_item <- cur_answer_col[cur_row]
+    for (k in 1:nr_responses) {
+      solx <- substr(x=cur_sol_item,k,k)
+      ax <- substr(x=cur_answer_item,k,k)
+      new_cols[cur_row, k] <- as.integer(solx==ax)
+    }
+  }
+  
+  # add new items to dataset
+  new_dataset <- cbind(new_dataset, new_cols)
+  }
+  
+  new_dataset <- cbind(results[,c(1:8)], new_dataset)
+  
+  # save this to file
+  write.table(new_dataset, file = "irt.csv",
+              row.names = FALSE, col.names = TRUE, quote = FALSE, sep = ";")  
+  file.copy("irt.csv", file.path(odir, "irt.csv"))
+            
   ## update zip (in case of corrections to Daten.txt), clean up, and copy back 
   if(isTRUE(attr(scans, "update"))) {
     file.remove(scan_zip)

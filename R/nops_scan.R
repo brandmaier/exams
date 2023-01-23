@@ -618,7 +618,7 @@ read_nops_registration <- function(x, threshold = c(0.04, 0.42), size = 0.036, t
   #x <- subimageputmark(x, c(0.3925, 0.275-0.09)) 
   #x <- subimageputmark(x, c(0.3925+0.035, 0.275+0.19-0.09))
   
-  browser()
+  #browser()
   
   ## checked boxes per column
   cs <- colSums(y > 0)
