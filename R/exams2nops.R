@@ -403,8 +403,8 @@ if(samepage) {
 \\nopscourse{}
 %
 \\PersonalData{Personal Data}
-\\FamilyName{Family Name}
-\\GivenName{Given Name}
+%\\FamilyName{Family Name}
+%\\GivenName{Given Name}
 \\Signature{Signature}
 \\RegistrationNumber{Registration Number}
 \\Checked{checked}
@@ -467,6 +467,8 @@ if(samepage) {
 \\begin{document} 
 
 \\markboth{\\textsf{{\\mytitle}: {\\myID}}}{\\textsf{{\\mytitle}: {\\myID}}}
+%\\markboth{\\textsf{{\\mytitle}: {\\myID} {Matrikelnummer:}}}{\\textsf{{\\mytitle}: {\\myID} {Matrikelnummer:}}}
+
 \\pagestyle{myheadings}
 ",
 page1,
@@ -643,7 +645,8 @@ sprintf("
 
 % general instructions and logo
 %\\IfFileExists{\\mylogo}{\\put(175,251){\\includegraphics[height=2.51cm,keepaspectratio]{\\mylogo}}}{}
-\\IfFileExists{\\mylogo}{\\put(105,246){\\includegraphics[height=2.51cm,keepaspectratio]{\\mylogo}}}{}
+%\\IfFileExists{\\mylogo}{\\put(115,246){\\includegraphics[height=2.00cm,keepaspectratio]{\\mylogo}}}{}
+\\IfFileExists{\\mylogo}{\\put(135,246){\\includegraphics[height=1.70cm,keepaspectratio]{\\mylogo}}}{}
 \\put(40,270){\\makebox(0,0)[bl]{\\textsf{\\textbf{\\LARGE{\\myinstitution}}}}}
 \\put(20,147){\\parbox{170mm}{\\textsf{\\myWarning}}} 
 
