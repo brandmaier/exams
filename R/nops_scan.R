@@ -582,6 +582,7 @@ read_nops_registration <- function(x, threshold = c(0.04, 0.42), size = 0.036, t
 {
 
   # AB
+ 
   
 #  coord <- cbind(0.166 + rep(0L:9L, each = 7L + regextra) * 0.027,
 #    0.681 + rep(-regextra:6L, 10L) * 0.047)
@@ -592,11 +593,21 @@ read_nops_registration <- function(x, threshold = c(0.04, 0.42), size = 0.036, t
 #  coord <- cbind(0.166 + rep(0L:9L, each = 7L + regextra) * 0.027,
 #                 0.578 + rep(-regextra:6L, 10L) * 0.047)
   
-  coord <- cbind(0.166 + rep(0L:9L, each = 7L + regextra) * 0.027, # y first
-                 #0.678 + (rep(-regextra:6L, 10L)) * 0.047)  # x second
-                #0.47 + rep(0:11, 10L) * 0.047 ) # 0.047 corresponds to 8 units distance
-                0.47 + rep(0:11, 10L) * 0.047*7.0/8.0 ) # 0.047 corresponds to 8 units distance
+  # latest version
+#  coord <- cbind(0.166 + rep(0L:9L, each = 7L + regextra) * 0.027, # y first
+#                0.47 + rep(0:11, 10L) * 0.047*7.0/8.0 ) # 0.047 corresponds to 8 units distance
 
+  #
+  size<-0.030
+  coord <- cbind(0.164 + rep(0L:9L, each = 7L + regextra) * 0.027, # y first
+                 #0.678 + (rep(-regextra:6L, 10L)) * 0.047)  # x second
+                 #0.47 + rep(0:11, 10L) * 0.047 ) # 0.047 corresponds to 8 units distance
+                 0.482 + rep(0:11, 10L) * 0.047*7.0/8.0 ) # 0.047 corresponds to 8 units distance
+  
+  
+  #for (i in 1:nrow(coord)) {
+  #  subimageput(x=coord[i,], value=1)
+  #}
   
   #
   # write out manipulated PNG image
