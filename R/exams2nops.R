@@ -3,8 +3,14 @@ exams2nops <- function(file, n = 1L, nsamp = NULL, dir = ".", name = NULL,
   institution = "R University", logo = "Rlogo.png", date = Sys.Date(), 
   replacement = FALSE, intro = NULL, blank = NULL, duplex = TRUE, pages = NULL,
   usepackage = NULL, header = NULL, encoding = "UTF-8", startid = 1L, points = NULL,
-  showpoints = FALSE, samepage = FALSE, twocolumn = FALSE, reglength = 7L, seed = NULL, ...)
+  showpoints = FALSE, samepage = FALSE, twocolumn = FALSE, reglength = 7L, seed = NULL, 
+  solution = FALSE, ...)
 {
+  ## checks
+  if (solution && n!=1) {
+    warning("Solution can only be generated for a single exam file! Continuing with n=1.")
+    n <- 1
+  }
   ## handle matrix specification of file
   if(is.matrix(file)) {
     if(!missing(n) && !is.null(n) && n != nrow(file)) warning("'n' must not differ from number of rows of 'file'")
@@ -65,8 +71,9 @@ exams2nops <- function(file, n = 1L, nsamp = NULL, dir = ".", name = NULL,
   ## for all (unique) exercises in the exam
   ufile <- unique(as.vector(unlist(file)))
   uenv <- new.env()
-  x <- exams_metainfo(xexams(ufile, driver = list(sweave = list(quiet = TRUE, encoding = encoding, envir = uenv),
+  metainf <- exams_metainfo(xexams(ufile, driver = list(sweave = list(quiet = TRUE, encoding = encoding, envir = uenv),
     read = NULL, transform = NULL, write = NULL), ...))[[1L]]    
+  x <- metainf
   names(x) <- ufile
   utype <- sapply(ufile, function(n) x[[n]]$type)
   wrong_type <- ufile[utype == "cloze"]
@@ -117,6 +124,8 @@ exams2nops <- function(file, n = 1L, nsamp = NULL, dir = ".", name = NULL,
       nexrc <- length(file)
     }
   }
+  
+ 
 
   ## generate appropriate template on the fly
   dir.create(template <- tempfile())
@@ -126,7 +135,8 @@ exams2nops <- function(file, n = 1L, nsamp = NULL, dir = ".", name = NULL,
     replacement = replacement, intro = intro, blank = blank,
     duplex = duplex, pages = pages, file = template,
     nchoice = nchoice,
-    encoding = encoding, samepage = samepage, twocolumn = twocolumn, reglength = reglength)
+    encoding = encoding, samepage = samepage, twocolumn = twocolumn, 
+    reglength = reglength, solution = solution, metainf = metainf)
 
   ## if points should be shown generate a custom transformer
   transform <- if(showpoints) {
@@ -166,10 +176,11 @@ exams2nops <- function(file, n = 1L, nsamp = NULL, dir = ".", name = NULL,
 
 make_nops_template <- function(n, replacement = FALSE, intro = NULL, blank = NULL,
   duplex = TRUE, pages = NULL, file = NULL, nchoice = 5, encoding = "UTF-8",
-  samepage = FALSE, twocolumn = FALSE, reglength = 7L)
+  samepage = FALSE, twocolumn = FALSE, reglength = 7L, solution = FALSE,
+  metainf = NULL)
 {
 
-page1 <- make_nops_page(n, nchoice = nchoice, reglength = reglength)
+page1 <- make_nops_page(n, nchoice = nchoice, reglength = reglength, solution = solution, metainf = metainf)
 page2 <- if(replacement) {
   make_nops_page(n, nchoice = nchoice, replacement = TRUE, reglength = reglength)
 } else {
@@ -225,8 +236,14 @@ sprintf("\\documentclass[10pt,a4paper%s]{article}", if(twocolumn) ",twocolumn" e
 \\usepackage{verbatim,url,fancyvrb,ae}
 \\usepackage{multicol,a4wide,pdfpages}
 \\usepackage{booktabs,longtable,eurosym,textcomp}
+\\usepackage{draftwatermark}
 
 \\setkeys{Gin}{keepaspectratio}
+
+",ifelse(solution, paste0("\\SetWatermarkText{L\\\"osung}\n",
+         "\\SetWatermarkColor[gray]{0.8}\n",
+         "\\SetWatermarkFontSize{1cm}",
+         "\\SetWatermarkScale{5}",sep="",collapse="") ,""),"
 
 \\DefineVerbatimEnvironment{Sinput}{Verbatim}{fontshape=sl}
 \\DefineVerbatimEnvironment{Soutput}{Verbatim}{}
@@ -519,10 +536,14 @@ blank[[2L]],
 if(twocolumn) rval <- gsub("\\newpage", "\\clearpage", rval, fixed = TRUE)
 
 if(!is.null(file)) writeLines(rval, file)
+
+if (solution) writeLines(rval, "debug.tex")
+
 invisible(rval)
 }
 
-make_nops_page <- function(n, replacement = FALSE, nchoice = 5, reglength = 7L)
+make_nops_page <- function(n, replacement = FALSE, nchoice = 5, reglength = 7L,
+                           solution = FALSE, metainf = NULL)
 {
 ## length of registration ID
 if(reglength < 7L) {
@@ -586,6 +607,46 @@ qbox <- function(i, nchoice = 5) {
     sprintf("\\put(%i,%i){\\makebox(0,0){\\textsf{%i}}}", ix + 2, iy + 6, i)
   }
 }
+
+checkmark <- function(x,y) {
+  paste0("\\put(",x,",",y,"){\\line(1,1){4}} \\put(",x,",",y+4,"){\\line(1,-1){4}} ",sep="",collapse = "")
+}
+
+solution_txt <- ""
+
+if (solution) {
+  # col1: 43,138
+  # col2: 107, 138
+  # col3: 167, 138
+  above <- FALSE
+  nq <- length(metainf)
+#  nq <- 45
+ # browser()
+  for (i in 1:nq) {
+    sol <- metainf[[i]]$solution
+    
+    ix <- (i - 1) %/% 15
+    iy <- (i - 1) %% 15 + 1
+    ix <- 19 + 64 * ix - as.numeric(ix >= 2) * 4
+    iy <- 129 - 7 * iy - 3 * ((iy - 1) %/% 5) + above * 10
+    
+    cur_x <- ix+2 +4
+    cur_y <- iy+6 +2 - 4
+    #  browser()
+    for (i in 1:length(sol)) {
+      curt_x <- cur_x + (i-1)*8
+      if (sol[i])
+        solution_txt <- c(solution_txt, checkmark(curt_x,cur_y),"\n")
+    }
+    
+  }
+  
+  #solution_txt <- c(solution_txt, #"\\put(24,230){\\makebox(0,5)[l]{\\textsf{L\\\"osung}}}\n ",
+   #                )
+  
+  solution_txt <- paste0(solution_txt,sep="",collapse = "")
+  
+} 
 
 c("
 \\thispagestyle{empty}
@@ -730,7 +791,7 @@ if(replacement & addreg == 0L) {
 \\put(116,170.2){\\line(1,1){3.8}} \\put(116,173.8){\\line(1,-1){3.8}} 
 "
 },
-
+solution_txt,
 "
 \\end{picture}
 ")
