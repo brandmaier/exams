@@ -236,11 +236,11 @@ sprintf("\\documentclass[10pt,a4paper%s]{article}", if(twocolumn) ",twocolumn" e
 \\usepackage{verbatim,url,fancyvrb,ae}
 \\usepackage{multicol,a4wide,pdfpages}
 \\usepackage{booktabs,longtable,eurosym,textcomp}
-\\usepackage{draftwatermark}
+
 
 \\setkeys{Gin}{keepaspectratio}
 
-",ifelse(solution, paste0("\\SetWatermarkText{L\\\"osung}\n",
+",ifelse(solution, paste0("\\usepackage{draftwatermark}\n\\SetWatermarkText{L\\\"osung}\n",
          "\\SetWatermarkColor[gray]{0.8}\n",
          "\\SetWatermarkFontSize{1cm}",
          "\\SetWatermarkScale{5}",sep="",collapse="") ,""),"
