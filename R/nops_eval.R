@@ -125,6 +125,17 @@ nops_eval <- function(
     results <- cbind(results[,1], new_name, new_id, results[,2:ncol(results)])
   }
   
+  # -- #
+  num_zero_ids <- sum(results[,1]=="000000000000")
+  if (num_zero_ids > 0) {
+    fake_ids <- 1:num_zero_ids
+    unique_fake_ids <- sapply(fake_ids, FUN=function(x){ paste0(paste0(rep(9, 12-nchar(x)),sep="",collapse=""),x,sep="",collapse="")})
+    results[results[,1]=="000000000000",1] <- unique_fake_ids
+  }
+  
+  # make unique
+  results[,1] <- make.unique(results[,1],sep="-DOPPELT-")
+  
   ## save results (preserving original column names, potentiall de or upper case)
   names(results)[1L:3L] <- nam
   write.table(results, file = results_csv,
@@ -177,6 +188,14 @@ nops_eval <- function(
   write.table(new_dataset, file = "irt.csv",
               row.names = FALSE, col.names = TRUE, quote = FALSE, sep = ";")  
   file.copy("irt.csv", file.path(odir, "irt.csv"))
+  
+  # -- and new XLS format --
+ # browser()
+  point_dat <- ascp[,(seq(1,num_items)-1)*4+4,drop=FALSE]
+  point_dat <- cbind(results[,c(1:8)], point_dat)
+  write.table(point_dat, file = "points.csv",
+              row.names = FALSE, col.names = TRUE, quote = FALSE, sep = ";",dec = ",")  
+  file.copy("points.csv", file.path(odir, "points.csv"))  
             
   ## update zip (in case of corrections to Daten.txt), clean up, and copy back 
   if(isTRUE(attr(scans, "update"))) {
@@ -225,7 +244,7 @@ nops_eval_check <- function(scans = "Daten.txt", register = dir(pattern = "\\.cs
   if(is.character(solutions)) solutions <- readRDS(solutions)
   
   ## missing student or exam IDs  
-  if (is.null(register)) id1<-integer(0) else  id1 <- which(!(d[, 6L] %in% rownames(register)))
+  if (is.null(register)) id1<-which((d[,6L]=="000000000000")) else  id1 <- which(!(d[, 6L] %in% rownames(register)))
   id2 <- which(!(d[, 2L] %in% names(solutions)))
   id <- d[sort(unique(c(id1, id2))), 6L]
   attr(d, "check") <- id
@@ -243,7 +262,7 @@ nops_eval_check <- function(scans = "Daten.txt", register = dir(pattern = "\\.cs
       for(i in id1) {
         if(requireNamespace("png")) {
           png_i <- trim_nops_scan(d[i, 1L])
-	  png_i <- subimage(png_i, center = c(0.25, 0.87 - 0.04 * as.numeric(substr(d[i, 4L], 1L, 1L))), prop = 0.35)
+	  png_i <- subimage(png_i, center = c(0.25, 0.87 - 0.04 * as.numeric(substr(d[i, 4L], 1L, 1L))), prop = 0.40)
           imageplot(png_i, main = d[i, 1L])
 	}
 	d[i, 6L] <- readline(prompt = sprintf("Correct registration number (for %s, %s): ", d[i, 6L], d[i, 1L]))
@@ -394,6 +413,13 @@ nops_eval_results <- function(scans = "Daten.txt", solutions = dir(pattern = "\\
   }
   ## varying point patterns across exams?
   p1dim <- NCOL(points) == 1L
+  
+  # is eval a list of evals?
+  eval_list <- FALSE
+  if (is.null(eval$pointsum)) {
+    stopifnot(length(eval)==n)
+    eval_list <- TRUE
+  }
  
   for(i in 1L:n) {
     if(i %in% string_ids) {
@@ -404,8 +430,16 @@ nops_eval_results <- function(scans = "Daten.txt", solutions = dir(pattern = "\\
       cor <- sapply(x, function(ex) paste(as.integer(ex[[i]]$metainfo$solution), collapse = ""))
       ans <- d[[paste("answer", i, sep = ".")]]
       d[[paste("solution", i, sep = ".")]] <- cor
+      
+      if (eval_list) {
+
+        d[[paste("check", i, sep = ".")]] <- sapply(seq_along(ans),
+                                                    function(j) eval[[i]]$pointsum(cor[j], substr(ans[j], 1, nchar(cor[j])))) #FIXME# ans[j]        
+      } else {
       d[[paste("check", i, sep = ".")]] <- sapply(seq_along(ans),
         function(j) eval$pointsum(cor[j], substr(ans[j], 1, nchar(cor[j])))) #FIXME# ans[j]
+      }
+      
       d[[paste("points", i, sep = ".")]] <- d[[paste("check", i, sep = ".")]] * if(p1dim) points[i] else points[i, ]
     }
   }
