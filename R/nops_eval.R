@@ -7,6 +7,7 @@ nops_eval <- function(
   dir = ".", results = "nops_eval", file = NULL, flavor = NULL,
   language = "en", interactive = TRUE,
   string_scans = dir(pattern = "^nops_string_scan_[[:digit:]]*\\.zip$"), string_points = seq(0, 1, 0.25),
+  batch_input = NULL,
   ...)
 {
   ## ensure a non-C locale
@@ -96,7 +97,7 @@ nops_eval <- function(
   }
 
   ## read and check scans
-  scans <- nops_eval_check("Daten.txt", register = register, solutions = solutions, interactive = interactive)
+  scans <- nops_eval_check("Daten.txt", register = register, solutions = solutions, interactive = interactive, batch_input = batch_input)
   if(length(attr(scans, "check")) != 0L) stop("Some IDs of exams/students could not matched to solutions/registrations.")
   if(string) {
     string_scans <- nops_eval_check2("Daten2.txt", solutions = solutions, interactive = interactive)
@@ -219,8 +220,28 @@ nops_eval <- function(
   invisible(results)
 }
 
+readlineOrBatch <- function(prompt, batch_input) 
+{
+  ask <- TRUE
+  if (!is.null(batch_input)) {
+    if (length(batch_input) > 0) ask<-FALSE
+  }
+  
+  if (ask) {
+    return( readline(prompt = prompt) )
+  } else {
+    return ( batch_input[1] )
+  }
+}
+
+popBatch <- function(x) {
+  if (is.null(x)) return(NULL)
+  x <- x[-1]
+  x
+}
+
 nops_eval_check <- function(scans = "Daten.txt", register = dir(pattern = "\\.csv$"),
-  solutions = dir(pattern = "\\.rds$"), interactive = TRUE)
+  solutions = dir(pattern = "\\.rds$"), interactive = TRUE, batch_input = NULL)
 {
   ## read scans
   d <- read.table(scans, colClasses = "character")
@@ -265,7 +286,9 @@ nops_eval_check <- function(scans = "Daten.txt", register = dir(pattern = "\\.cs
 	  png_i <- subimage(png_i, center = c(0.25, 0.87 - 0.04 * as.numeric(substr(d[i, 4L], 1L, 1L))), prop = 0.40)
           imageplot(png_i, main = d[i, 1L])
 	}
-	d[i, 6L] <- readline(prompt = sprintf("Correct registration number (for %s, %s): ", d[i, 6L], d[i, 1L]))
+	#d[i, 6L] <- readline(prompt = sprintf("Correct registration number (for %s, %s): ", d[i, 6L], d[i, 1L]))
+        d[i, 6L] <- readLineOrBatch(prompt = sprintf("Correct registration number (for %s, %s): ", d[i, 6L], d[i, 1L], batch_input) )
+        batch_input <- popBatch(batch_input)
       }
       for(i in id2) {
         if(requireNamespace("png")) {
@@ -273,7 +296,9 @@ nops_eval_check <- function(scans = "Daten.txt", register = dir(pattern = "\\.cs
 	  png_i <- subimage(png_i, center = c(0.4, 0.28), prop = 0.18)
           imageplot(png_i, main = d[i, 1L])
 	}
-	d[i, 2L] <- readline(prompt = sprintf("Correct exam ID (for %s, %s): ", d[i, 2L], d[i, 1L]))
+	#d[i, 2L] <- readline(prompt = sprintf("Correct exam ID (for %s, %s): ", d[i, 2L], d[i, 1L]))
+        d[i, 2L] <- readlineOrBatch(prompt = sprintf("Correct exam ID (for %s, %s): ", d[i, 2L], d[i, 1L]), batch_input)
+        batch_input <- popBatch(batch_input)
       }
       write.table(d, file = scans, quote = FALSE, row.names = FALSE, col.names = FALSE)
       d <- nops_eval_check(scans = scans, register = register, solutions = solutions, interactive = FALSE)

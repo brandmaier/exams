@@ -663,8 +663,8 @@ c("
 \\put(\\namecenter,244){\\makebox(0,0){\\textsf{\\myPersonalData}}} 
 \\put(20,198){\\framebox(\\namewidth,43){}} \\thinlines 
 \\multiput(20,217)(0,12){2}{\\line(1,0){\\nameline}} \\thicklines 
-\\put(21,236){\\makebox(0,5)[l]{\\textsf{\\myFamilyName:}}} 
-\\put(21,224){\\makebox(0,5)[l]{\\textsf{\\myGivenName:}}} 
+%\\put(21,236){\\makebox(0,5)[l]{\\textsf{\\myFamilyName:}}} 
+%\\put(21,224){\\makebox(0,5)[l]{\\textsf{\\myGivenName:}}} 
 \\put(21,212){\\makebox(0,5)[l]{\\textsf{\\myCourse:}}} 
 %\\put(\\namechecked,200){\\makebox(0,0)[rb]{\\scriptsize{\\textsf{\\myChecked}}}} 
 
