@@ -375,6 +375,16 @@ has_mark <- function(x, threshold = c(0.04, 0.42), fuzzy = FALSE, trim = 0.3, sh
   }
 }
 
+get_mark <- function(x, type = c("row", "col"), zap = 0.35)
+{
+  x[rowMeans(x) >= zap,] <- 0
+  x[,colMeans(x) >= zap] <- 0
+  
+  type <- match.arg(type)
+  x <- if(type == "row") rowMeans(x) else colMeans(x)
+  which(x > mean(range(x)))
+}
+
 ## read scanned PNG image into b/w pixel matrix and trim margins
 trim_nops_scan <- function(x, verbose = FALSE, minrot = 0.002)
 {
@@ -423,15 +433,7 @@ trim_nops_scan <- function(x, verbose = FALSE, minrot = 0.002)
     xbr <- x[seq(round(rb * d[1L]), d[1L]), seq(round(0.83 * d[2L]), d[2L])]  
   }
 
-  get_mark <- function(x, type = c("row", "col"), zap = 0.35)
-  {
-    x[rowMeans(x) >= zap,] <- 0
-    x[,colMeans(x) >= zap] <- 0
-
-    type <- match.arg(type)
-    x <- if(type == "row") rowMeans(x) else colMeans(x)
-    which(x > mean(range(x)))
-  }
+ 
   get_mean <- function(x, maxdist = 10) {
     mean(x[abs(x - median(x)) < maxdist])
   }
@@ -446,6 +448,8 @@ trim_nops_scan <- function(x, verbose = FALSE, minrot = 0.002)
   cl <- as.vector(cl)
   cr <- as.vector(d[2L] - (ncol(xbr) - cr))
 
+ # browser()
+  
   ## rotation angle
   rot <- asin((get_mean(rbl) - get_mean(rbr)) / (cr - cl))
   }

@@ -287,7 +287,7 @@ nops_eval_check <- function(scans = "Daten.txt", register = dir(pattern = "\\.cs
           imageplot(png_i, main = d[i, 1L])
 	}
 	#d[i, 6L] <- readline(prompt = sprintf("Correct registration number (for %s, %s): ", d[i, 6L], d[i, 1L]))
-        d[i, 6L] <- readLineOrBatch(prompt = sprintf("Correct registration number (for %s, %s): ", d[i, 6L], d[i, 1L], batch_input) )
+        d[i, 6L] <- readlineOrBatch(prompt = sprintf("Correct registration number (for %s, %s): ", d[i, 6L], d[i, 1L]), batch_input )
         batch_input <- popBatch(batch_input)
       }
       for(i in id2) {
