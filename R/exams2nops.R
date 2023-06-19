@@ -194,7 +194,7 @@ page3 <- if(any(nchoice < 1L)) {
 
 ## number of additional units in registration ID
 addreg <- pmin(5L, pmax(0L, reglength - 7L))
-cat("ADDREG: ", addreg,"\n")
+
 ## encoding always assumed to be UTF-8 starting from R/exams 2.4-0
 if(!is.null(encoding) && !(tolower(encoding) %in% c("", "utf-8", "utf8"))) {
   warning("the only supported 'encoding' is UTF-8")
@@ -359,8 +359,8 @@ sprintf("\\reg%s%s", c("seven", "eight", "nine", "ten", "eleven", "twelve"), tol
   \\def\\regleftt{106} % Matrikelnummerbox Trennzeichen für Ziffern
   \\def\\regleftb{99} % Position der Matrikelnummer-Checkboxes
   \\def\\regleftn{95} % Offset der Zahlen 0-9
-  \\def\\regwidth{93} % width of the Matrikelnummerbox in Ziffern
-  \\def\\regwidthn{104} % offset of right set of numbers 0-9
+  \\def\\regwidth{85} % width of the Matrikelnummerbox in Ziffern
+  \\def\\regwidthn{90} % offset of right set of numbers 0-9 
   \\def\\regnum{12} % number of checkboxes for ID/Matrikelnummer
   \\def\\regnumt{11}
 \\fi
@@ -554,7 +554,6 @@ if(reglength < 7L) {
 }
 if(reglength > 12L) warning(sprintf("'reglength = %s' too large, using 10 instead", reglength))
 addreg <- pmin(5L, pmax(0L, reglength - 7L))
-cat("Using addreg=",addreg,"\n")
 
 mytype <- if(addreg < 1L) {
   ## the number of questions rounded up in steps of 5 
