@@ -659,12 +659,16 @@ c("
 \\put(27.5,270){\\line(1,0){5}} \\put(30,267.5){\\line(0,1){5}} 
 
 % personal data box
-\\put(\\namecenter,244){\\makebox(0,0){\\textsf{\\myPersonalData}}} 
+% replace personal data field 
+%\\put(\\namecenter,244){\\makebox(0,0){\\textsf{\\myPersonalData}}} 
+%\\put(\\namecenter,244){\\makebox(0,0){\\textsf{Kurs:}}} 
+\\put(35,244){\\makebox(0,0){\\textsf{Kurs:}}} 
 \\put(20,198){\\framebox(\\namewidth,43){}} \\thinlines 
 \\multiput(20,217)(0,12){2}{\\line(1,0){\\nameline}} \\thicklines 
+% hide everything inside the personal data box
 %\\put(21,236){\\makebox(0,5)[l]{\\textsf{\\myFamilyName:}}} 
 %\\put(21,224){\\makebox(0,5)[l]{\\textsf{\\myGivenName:}}} 
-\\put(21,212){\\makebox(0,5)[l]{\\textsf{\\myCourse:}}} 
+%\\put(21,212){\\makebox(0,5)[l]{\\textsf{\\myCourse:}}} 
 %\\put(\\namechecked,200){\\makebox(0,0)[rb]{\\scriptsize{\\textsf{\\myChecked}}}} 
 
 % TODO: add colored stripes?!
