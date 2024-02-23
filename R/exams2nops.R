@@ -624,6 +624,9 @@ if (solution) {
   for (i in 1:nq) {
     sol <- metainf[[i]]$solution
     
+    # skip over string questions
+    if (metainf[[i]]$type=="string") next
+    
     ix <- (i - 1) %/% 15
     iy <- (i - 1) %% 15 + 1
     ix <- 19 + 64 * ix - as.numeric(ix >= 2) * 4
@@ -631,7 +634,7 @@ if (solution) {
     
     cur_x <- ix+2 +4
     cur_y <- iy+6 +2 - 4
-    #  browser()
+    
     for (i in 1:length(sol)) {
       curt_x <- cur_x + (i-1)*8
       if (sol[i])
