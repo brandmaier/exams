@@ -1,0 +1,11 @@
+
+\begin{question}
+Beschreiben Sie kurz die wesentlichen Merkmale eines Experiments.
+
+\end{question}
+
+\exname{Item2}
+\extype{string}
+\exsolution{XXX}
+
+

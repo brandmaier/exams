@@ -1,0 +1,19 @@
+
+\begin{question}
+Wie nennt man die Teilmenge aus einer Grundgesamtheit, die unter bestimmten Gesichtspunkten (gem\"a{\ss} der wissenschaftlichen Fragestellung) ausgew\"ahlt wurde. 
+
+\begin{answerlist}
+\item Population
+\item Subpopulation
+\item Stichprobe 
+\item Zufallsauswahl
+\item Angefallene Stichprobe
+
+\end{answerlist}
+\end{question}
+
+\exname{Item1}
+\extype{schoice}
+\exsolution{00100}
+\exshuffle{5}
+

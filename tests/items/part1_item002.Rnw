@@ -1,0 +1,19 @@
+
+\begin{question}
+Zu welchem Typ von St\"orvariable geh\"ort das Merkmal {\glqq}Geschlecht\grqq{}? 
+
+\begin{answerlist}
+\item Keins. Geschlecht ist niemals eine St\"orvariable
+\item Situationsmerkmal
+\item Nur Versuchsleitermerkmal
+\item Nur Versuchspersonenmerkmal
+\item Versuchspersonen- oder Versuchsleitermerkmal (je nach Fragestellung) 
+
+\end{answerlist}
+\end{question}
+
+\exname{Item2}
+\extype{schoice}
+\exsolution{00001}
+\exshuffle{5}
+
