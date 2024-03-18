@@ -7,7 +7,7 @@ nops_eval <- function(
   dir = ".", results = "nops_eval", file = NULL, flavor = NULL,
   language = "en", interactive = TRUE,
   string_scans = dir(pattern = "^nops_string_scan_[[:digit:]]*\\.zip$"), string_points = seq(0, 1, 0.25),
-  batch_input = NULL,
+  batch_input = NULL, skip_string_scans = FALSE,
   ...)
 {
   ## ensure a non-C locale
@@ -65,10 +65,11 @@ nops_eval <- function(
 
   ## any non-schoice/mchoice exercises?
   string <- any(!sapply(solutions[[1L]], function(y) y$metainfo$type %in% c("mchoice", "schoice")))
-
+  
   ## copy scan results
   file.copy(scans, file.path(tdir, scans <- basename(scans)))
-  if(string) file.copy(string_scans, file.path(tdir, string_scans <- basename(string_scans)))
+  if(string) file.copy(string_scans,
+    file.path(tdir, string_scans <- basename(string_scans)))
   setwd(tdir)
   on.exit(setwd(odir), add = TRUE)
 
@@ -83,7 +84,7 @@ nops_eval <- function(
   }
 
   ## unzip scan results
-  if(string) {
+  if(string && !skip_string_scans) {
     string_scan_zip <- string_scans
     string_scan_fil <- unzip(string_scan_zip)
     string_scan_fil <- gsub(normalizePath(file.path(tdir, ""), winslash = "/"), "", normalizePath(string_scan_fil, winslash = "/"), fixed = TRUE)
@@ -99,15 +100,34 @@ nops_eval <- function(
   ## read and check scans
   scans <- nops_eval_check("Daten.txt", register = register, solutions = solutions, interactive = interactive, batch_input = batch_input)
   if(length(attr(scans, "check")) != 0L) stop("Some IDs of exams/students could not matched to solutions/registrations.")
-  if(string) {
+  if(string && !skip_string_scans) {
     string_scans <- nops_eval_check2("Daten2.txt", solutions = solutions, interactive = interactive)
     if(length(attr(string_scans, "check")) != 0L) stop("Some IDs of exams/students in the string scans could not matched to solutions/registrations.")
   }
+  
+  if(string && skip_string_scans) {
+    string_scans <- NULL
+  }
+  
+  #
+  # load external file here
+  # 
+  setwd(odir)
+  fname <- "Freitext-Punkte.csv"
+  cat("Searching in ", getwd()," for Punkte file\n")
+  if (file.exists(fname)) {
+    cat("Using manual points from file\n")
+    strpoints = read.csv("Freitext-Punkte.csv",sep=";",header=FALSE)
+  } else {
+    strpoints <- NULL
+  }
+  setwd(tdir)
 
   ## evaluate exam results
   results <- nops_eval_results(scans = scans, solutions = solutions,
     points = points, eval = eval, mark = mark, labels = labels,
-    string_scans = string_scans, string_points = string_points)
+    string_scans = string_scans, string_points = string_points,
+    strpoints = strpoints)
   if(interactive) tab <- nops_eval_results_table(results, solutions)
 
   
@@ -353,7 +373,7 @@ nops_eval_check2 <- function(scans = "Daten2.txt", solutions = dir(pattern = "\\
 nops_eval_results <- function(scans = "Daten.txt", solutions = dir(pattern = "\\.rds$"),
   points = NULL, eval = exams_eval(partial = TRUE, negative = FALSE, rule = "false2"),
   mark = c(0.5, 0.6, 0.75, 0.85), labels = NULL,
-  string_scans = "Daten2.txt", string_points = seq(0, 1, 0.25))
+  string_scans = "Daten2.txt", string_points = seq(0, 1, 0.25), strpoints = NULL)
 {
   ## read correct solutions
   x <- if(is.character(solutions)) readRDS(solutions) else solutions
@@ -403,6 +423,7 @@ nops_eval_results <- function(scans = "Daten.txt", solutions = dir(pattern = "\\
       string_points[p]
     }
     for(i in 3L:5L) d2[[i]] <- mchoice_to_points(d2[[i]])
+    
     colnames(d2) <- c("scan", "exam", paste("answer", 1L:3L, sep = "."))
     if(!all(d2$exam %in% d$exam)) {
       warning(paste(
@@ -414,13 +435,17 @@ nops_eval_results <- function(scans = "Daten.txt", solutions = dir(pattern = "\\
         "For the following main exam IDs there are no string IDs:",
         paste(d$exam[!(d$exam %in% d2$exam)], collapse = ", ")))
     }
-    d2 <- d2[d$exam, ]
-    if(any(nok <- is.na(d2$scan))) {
-      rownames(d2) <- d2$exam <- d$exam
-      nok <- which(nok)
-      d2$scan[nok] <- ""
-      d2[nok, 3L:5L] <- 0
-    }
+
+    # this is funny matching code, which really should be based on 
+    # registration, not exam code?!
+    #d2 <- d2[d$exam, ]
+    #if(any(nok <- is.na(d2$scan))) {
+    #  rownames(d2) <- d2$exam <- d$exam
+    #  nok <- which(nok)
+    #  d2$scan[nok] <- ""
+    #  d2[nok, 3L:5L] <- 0
+    #}
+    
   }
 
   ## points
@@ -448,9 +473,20 @@ nops_eval_results <- function(scans = "Daten.txt", solutions = dir(pattern = "\\
  
   for(i in 1L:n) {
     if(i %in% string_ids) {
-      d[[paste("solution", i, sep = ".")]] <- "00000"
-      d[[paste("check", i, sep = ".")]] <- d2[[which(string_ids == i) + 2L]]
-      d[[paste("points", i, sep = ".")]] <- d[[paste("check", i, sep = ".")]] * if(p1dim) points[i] else points[i, ]
+
+      if (!is.null(strpoints))   {
+        colid <- 3 + which(string_ids==i)
+        strpoints_pts = strpoints[,colid]
+        d[[paste("solution", i, sep = ".")]] <- "00000"
+        d[[paste("check", i, sep = ".")]]  <- "00000"
+        d[[paste("points", i, sep = ".")]] <- strpoints[, colid]
+        
+      } else {   
+        d[[paste("solution", i, sep = ".")]] <- "00000"
+        d[[paste("check", i, sep = ".")]] <- d2[[which(string_ids == i) + 2L]]
+        d[[paste("points", i, sep = ".")]] <- d[[paste("check", i, sep = ".")]] * if(p1dim) points[i] else points[i, ]
+      }
+      
     } else {
       cor <- sapply(x, function(ex) paste(as.integer(ex[[i]]$metainfo$solution), collapse = ""))
       ans <- d[[paste("answer", i, sep = ".")]]
